@@ -1,1 +1,1 @@
-rootProject.name = "com.programmersbox.pillcounter"
+rootProject.name = "PillCounter"
