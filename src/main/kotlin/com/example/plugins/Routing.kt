@@ -22,7 +22,7 @@ fun Application.configureRouting(
             call.respond(PillCount(calculatePillCount(fullWeight.value, weight), weight))
         }
 
-        post<PillWeights> {
+        post<PillWeights>("/weight") {
             pillWeights.tryEmit(it)
             pillInfoFile.writeText(Json.encodeToString(it))
         }
