@@ -1,5 +1,6 @@
 package com.example
 
+import com.example.plugins.PillCount
 import com.example.plugins.configureRouting
 import com.example.plugins.configureSerialization
 import com.example.plugins.configureSockets
@@ -7,6 +8,7 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -36,7 +38,8 @@ fun Application.module() {
     }
     val fullWeight = MutableStateFlow(0)
     val pillWeights = MutableStateFlow(initialInfo)
-    configureSockets()
+    val pillCount = combine(fullWeight, pillWeights) { f, p -> PillCount(calculatePillCount(f, p), p) }
+    configureSockets(pillCount)
     configureSerialization()
     configureRouting(fullWeight, pillWeights, pillInfoFile)
     launch { piSetup(fullWeight) }
@@ -47,6 +50,10 @@ fun Application.module() {
 
     pillWeights
         .onEach { println("Pill Weight: $it") }
+        .launchIn(this)
+
+    pillCount
+        .onEach { println("Pill Count: $it") }
         .launchIn(this)
 }
 

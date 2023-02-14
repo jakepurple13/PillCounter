@@ -1,21 +1,31 @@
 package com.example.plugins
 
-import io.ktor.server.websocket.*
-import io.ktor.websocket.*
-import java.time.Duration
+import io.ktor.serialization.kotlinx.*
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
+import io.ktor.server.websocket.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.serialization.json.Json
+import java.time.Duration
 
-fun Application.configureSockets() {
+fun Application.configureSockets(
+    pillCount: Flow<PillCount>
+) {
     install(WebSockets) {
         pingPeriod = Duration.ofSeconds(15)
         timeout = Duration.ofSeconds(15)
         maxFrameSize = Long.MAX_VALUE
         masking = false
+        contentConverter = KotlinxWebsocketSerializationConverter(Json)
     }
     routing {
         webSocket("/ws") { // websocketSession
-            for (frame in incoming) {
+            pillCount
+                .onEach { sendSerialized(it) }
+                .collect()
+            /*for (frame in incoming) {
                 if (frame is Frame.Text) {
                     val text = frame.readText()
                     outgoing.send(Frame.Text("YOU SAID: $text"))
@@ -23,7 +33,7 @@ fun Application.configureSockets() {
                         close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
                     }
                 }
-            }
+            }*/
         }
     }
 }
