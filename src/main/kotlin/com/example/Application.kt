@@ -7,6 +7,8 @@ import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
@@ -19,9 +21,17 @@ fun main() {
 
 fun Application.module() {
     val pillInfoFile = File("pillInfo.json")
+    try {
+        if (!pillInfoFile.exists()) {
+            pillInfoFile.createNewFile()
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
     val initialInfo = try {
         Json.decodeFromString<PillWeights>(pillInfoFile.readText())
     } catch (e: Exception) {
+        e.printStackTrace()
         PillWeights()
     }
     val pills = MutableStateFlow(0)
@@ -30,6 +40,14 @@ fun Application.module() {
     configureSerialization()
     configureRouting(pills, pillWeights, pillInfoFile)
     launch { piSetup(pills) }
+
+    pills
+        .onEach { println("Full Weight: $it") }
+        .launchIn(this)
+
+    pillWeights
+        .onEach { println("Pill Weight: $it") }
+        .launchIn(this)
 }
 
 @Serializable
