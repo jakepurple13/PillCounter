@@ -6,6 +6,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.json.Json
 import java.time.Duration
@@ -23,6 +24,7 @@ fun Application.configureSockets(
     routing {
         webSocket("/ws") { // websocketSession
             pillCount
+                .debounce(1000)
                 .onEach { sendSerialized(it) }
                 .collect()
             /*for (frame in incoming) {
