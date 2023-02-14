@@ -38,7 +38,10 @@ fun Application.module() {
     }
     val fullWeight = MutableStateFlow(0)
     val pillWeights = MutableStateFlow(initialInfo)
-    val pillCount = combine(fullWeight, pillWeights) { f, p -> PillCount(calculatePillCount(f, p), p) }
+    val pillCount = combine(
+        fullWeight, pillWeights
+    ) { f, p -> PillCount(calculatePillCount(f, p), p) }
+
     configureSockets(pillCount)
     configureSerialization()
     configureRouting(fullWeight, pillWeights, pillInfoFile)
