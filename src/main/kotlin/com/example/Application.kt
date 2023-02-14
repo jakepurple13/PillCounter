@@ -34,14 +34,14 @@ fun Application.module() {
         e.printStackTrace()
         PillWeights()
     }
-    val pills = MutableStateFlow(0)
+    val fullWeight = MutableStateFlow(0)
     val pillWeights = MutableStateFlow(initialInfo)
     configureSockets()
     configureSerialization()
-    configureRouting(pills, pillWeights, pillInfoFile)
-    launch { piSetup(pills) }
+    configureRouting(fullWeight, pillWeights, pillInfoFile)
+    launch { piSetup(fullWeight) }
 
-    pills
+    fullWeight
         .onEach { println("Full Weight: $it") }
         .launchIn(this)
 
@@ -55,3 +55,7 @@ data class PillWeights(
     val bottleWeight: Double = 0.0,
     val pillWeight: Double = 0.0
 )
+
+
+fun calculatePillCount(weight: Int, pillWeight: PillWeights) =
+    (weight - pillWeight.bottleWeight) / pillWeight.pillWeight

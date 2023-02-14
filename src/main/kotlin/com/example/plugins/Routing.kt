@@ -1,6 +1,7 @@
 package com.example.plugins
 
 import com.example.PillWeights
+import com.example.calculatePillCount
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -11,15 +12,14 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 fun Application.configureRouting(
-    pills: MutableStateFlow<Int>,
+    fullWeight: MutableStateFlow<Int>,
     pillWeights: MutableStateFlow<PillWeights>,
     pillInfoFile: File
 ) {
     routing {
         get("/currentCount") {
             val weight = pillWeights.value
-            val pillCount = (pills.value - weight.pillWeight) / weight.pillWeight
-            call.respond(PillCount(pillCount, pillWeights.value))
+            call.respond(PillCount(calculatePillCount(fullWeight.value, weight), weight))
         }
 
         post<PillWeights> {
