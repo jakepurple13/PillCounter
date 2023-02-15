@@ -16,9 +16,37 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.net.InetAddress
+import java.util.concurrent.TimeUnit
+import javax.jmdns.JmDNS
+import javax.jmdns.ServiceInfo
+
 
 fun main() {
-    embeddedServer(CIO, port = 8080, host = "0.0.0.0", module = Application::module).start(wait = true)
+    // Create a JmDNS instance
+    val jmdns = JmDNS.create(InetAddress.getLocalHost())
+
+    // Register a service
+    val serviceInfo = ServiceInfo.create(
+        "_http._tcp.local.",
+        "pillcounter",
+        8080,
+        "path=index.html"
+    )
+
+    jmdns.registerService(serviceInfo)
+
+    val server = embeddedServer(CIO, port = 8080, host = "0.0.0.0", module = Application::module)
+        .start(wait = true)
+
+    Runtime.getRuntime()
+        .addShutdownHook(
+            Thread {
+                server.stop(1, 5, TimeUnit.SECONDS)
+                jmdns.unregisterAllServices()
+            }
+        )
+    Thread.currentThread().join()
 }
 
 fun Application.module() {

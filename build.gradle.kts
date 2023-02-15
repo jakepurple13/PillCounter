@@ -49,4 +49,5 @@ dependencies {
     implementation("com.pi4j:pi4j-plugin-pigpio:$pi4jVersion")
     implementation("com.pi4j:pi4j-plugin-linuxfs:$pi4jVersion")
     implementation("com.pi4j:pi4j-plugin-mock:$pi4jVersion")
+    implementation("org.jmdns:jmdns:3.5.8")
 }
