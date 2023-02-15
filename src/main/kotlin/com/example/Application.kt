@@ -5,8 +5,8 @@ import com.example.plugins.configureRouting
 import com.example.plugins.configureSerialization
 import com.example.plugins.configureSockets
 import io.ktor.server.application.*
+import io.ktor.server.cio.*
 import io.ktor.server.engine.*
-import io.ktor.server.netty.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
@@ -18,7 +18,7 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module).start(wait = true)
+    embeddedServer(CIO, port = 8080, host = "0.0.0.0", module = Application::module).start(wait = true)
 }
 
 fun Application.module() {
@@ -62,6 +62,7 @@ fun Application.module() {
 
 @Serializable
 data class PillWeights(
+    val name: String = "",
     val bottleWeight: Double = 0.0,
     val pillWeight: Double = 0.0
 )
