@@ -96,6 +96,5 @@ data class PillWeights(
     val uuid: String = ""
 )
 
-
 fun calculatePillCount(weight: Int, pillWeight: PillWeights) =
     (weight - pillWeight.bottleWeight) / pillWeight.pillWeight
