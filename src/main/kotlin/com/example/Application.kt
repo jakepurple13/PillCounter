@@ -92,7 +92,8 @@ fun Application.module() {
 data class PillWeights(
     val name: String = "",
     val bottleWeight: Double = 0.0,
-    val pillWeight: Double = 0.0
+    val pillWeight: Double = 0.0,
+    val uuid: String = ""
 )
 
 
