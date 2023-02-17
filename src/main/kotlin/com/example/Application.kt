@@ -17,14 +17,19 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.net.InetAddress
+import java.net.NetworkInterface
+import java.net.SocketException
 import java.util.concurrent.TimeUnit
 import javax.jmdns.JmDNS
 import javax.jmdns.ServiceInfo
 
-
 fun main() {
+    val ipAddresses = getIpAddresses()
+
     // Create a JmDNS instance
-    val jmdns = JmDNS.create(InetAddress.getLocalHost())
+    val jmdns = JmDNS.create(
+        InetAddress.getByName(ipAddresses.find { it.addressType == AddressType.SiteLocal }!!.address)
+    )
 
     // Register a service
     val serviceInfo = ServiceInfo.create(
@@ -98,3 +103,48 @@ data class PillWeights(
 
 fun calculatePillCount(weight: Int, pillWeight: PillWeights) =
     (weight - pillWeight.bottleWeight) / pillWeight.pillWeight
+
+private fun getIpAddresses(): List<IpAddressInfo> {
+    val ip = mutableListOf<IpAddressInfo>()
+    try {
+        val enumNetworkInterfaces = NetworkInterface.getNetworkInterfaces()
+        while (enumNetworkInterfaces.hasMoreElements()) {
+            val networkInterface = enumNetworkInterfaces.nextElement()
+            val enumInetAddress = networkInterface.inetAddresses
+            while (enumInetAddress.hasMoreElements()) {
+                val inetAddress = enumInetAddress.nextElement()
+                if (inetAddress.isLoopbackAddress) {
+                    ip += IpAddressInfo(inetAddress.hostAddress, AddressType.Loopback)
+                } else if (inetAddress.isSiteLocalAddress) {
+                    ip += IpAddressInfo(inetAddress.hostAddress, AddressType.SiteLocal)
+                } else if (inetAddress.isLinkLocalAddress) {
+                    ip += IpAddressInfo(inetAddress.hostAddress, AddressType.LinkLocal)
+                } else if (inetAddress.isMulticastAddress) {
+                    ip += IpAddressInfo(inetAddress.hostAddress, AddressType.Multicast)
+                }
+                ip += IpAddressInfo(
+                    inetAddress.hostAddress,
+                    when {
+                        inetAddress.isLoopbackAddress -> AddressType.Loopback
+                        inetAddress.isSiteLocalAddress -> AddressType.SiteLocal
+                        inetAddress.isLinkLocalAddress -> AddressType.LinkLocal
+                        inetAddress.isMulticastAddress -> AddressType.Multicast
+                        else -> AddressType.None
+                    }
+                )
+            }
+        }
+    } catch (e: SocketException) {
+        e.printStackTrace()
+    }
+    return ip
+}
+
+enum class AddressType {
+    Loopback, SiteLocal, LinkLocal, Multicast, None
+}
+
+data class IpAddressInfo(
+    val address: String,
+    val addressType: AddressType
+)

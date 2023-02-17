@@ -23,6 +23,7 @@ fun piSetup(
             id("weight")
             name("Weight Sensor")
             mockProvider()
+            //piGpioProvider()
         }.run {
             printRegistry(this@PI4J)
             listen {

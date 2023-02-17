@@ -24,6 +24,12 @@ java {
     withSourcesJar()
 }
 
+ktor {
+    fatJar {
+        archiveFileName.set("pillcounter.jar")
+    }
+}
+
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
 }
@@ -50,4 +56,5 @@ dependencies {
     implementation("com.pi4j:pi4j-plugin-linuxfs:$pi4jVersion")
     implementation("com.pi4j:pi4j-plugin-mock:$pi4jVersion")
     implementation("org.jmdns:jmdns:3.5.8")
+    implementation("org.slf4j:slf4j-nop:2.0.6")
 }
