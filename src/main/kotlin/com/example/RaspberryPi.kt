@@ -4,7 +4,7 @@ import com.pi4j.Pi4J
 import com.pi4j.ktx.console
 import com.pi4j.ktx.io.analog.analogInput
 import com.pi4j.ktx.io.analog.listen
-import com.pi4j.ktx.io.analog.mockProvider
+import com.pi4j.ktx.io.analog.piGpioProvider
 import com.pi4j.ktx.printRegistry
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -22,8 +22,8 @@ fun piSetup(
         analogInput(24) {
             id("weight")
             name("Weight Sensor")
-            mockProvider()
-            //piGpioProvider()
+            //mockProvider()
+            piGpioProvider()
         }.run {
             printRegistry(this@PI4J)
             listen {
