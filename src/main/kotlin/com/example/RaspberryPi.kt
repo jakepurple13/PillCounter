@@ -10,6 +10,8 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.InetAddress
 import java.util.stream.Collectors
+import javax.jmdns.JmDNS
+import javax.jmdns.ServiceInfo
 import kotlin.math.roundToInt
 
 fun Application.configurePiSetup(
@@ -36,7 +38,7 @@ fun Application.configurePiSetup(
     flow {
         while (true) {
             delay(1000)
-            val response = RunCommand.runPythonCodeAsync("hx711_example.py")
+            val response = RunCommand.runPythonCodeAsync("/home/pi/Desktop/hx711_example.py")
                 .await()
                 .toFloatOrNull()
             emit(response)
@@ -44,13 +46,41 @@ fun Application.configurePiSetup(
     }
         .filterNotNull()
         .map { it.roundToInt() }
+        .onEach { println("Reading from sensor: $it") }
         .onEach { valueUpdate.emit(it) }
         .launchIn(this)
-
 }
 
-fun Application.configureWifi() {
-    launch {
+class NetworkHandling {
+
+    private var jmdns: JmDNS? = null
+
+    private fun setup() {
+        try {
+            if (jmdns == null) {
+                val ipAddresses = getIpAddresses()
+
+                jmdns = JmDNS.create(
+                    InetAddress.getByName(ipAddresses.find { it.addressType == AddressType.SiteLocal }!!.address)
+                )
+
+                // Register a service
+                val serviceInfo = ServiceInfo.create(
+                    "_http._tcp.local.",
+                    "pillcounter",
+                    8080,
+                    "path=index.html"
+                )
+
+                jmdns?.registerService(serviceInfo)
+            }
+        } catch (e: Exception) {
+            println("Something went wrong here!")
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun internetListener() {
         while (true) {
             try {
                 val ipAddresses = getIpAddresses()
@@ -59,14 +89,26 @@ fun Application.configureWifi() {
                         .isReachable(10000)
                 ) {
                     throw Exception("Can't reach network!")
+                } else {
+                    setup()
                 }
                 delay(10000)
             } catch (e: Exception) {
                 e.printStackTrace()
+                closeAll()
                 RunCommand.runAsync("sudo wifi-connect").await()
             }
         }
     }
+
+    fun closeAll() {
+        jmdns?.unregisterAllServices()
+        jmdns = null
+    }
+}
+
+fun Application.configureWifi(networkHandling: NetworkHandling) {
+    launch { networkHandling.internetListener() }
 }
 
 object RunCommand {

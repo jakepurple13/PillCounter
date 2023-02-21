@@ -15,55 +15,29 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.net.InetAddress
 import java.net.NetworkInterface
 import java.net.SocketException
 import java.util.concurrent.TimeUnit
-import javax.jmdns.JmDNS
-import javax.jmdns.ServiceInfo
 
 fun main() {
-    //TODO: This will ALWAYS be running! But when the pi regains wifi, restart this!
+    Thread.sleep(2500)
 
-    //TODO: This is the only thing that needs to be restarted on wifi changes
-    // if there is no wifi, run wifi-connect!
-    val ipAddresses = getIpAddresses()
+    val networkHandling = NetworkHandling()
 
-    // Create a JmDNS instance
-    val jmdns = try {
-        val jmdns = JmDNS.create(
-            InetAddress.getByName(ipAddresses.find { it.addressType == AddressType.SiteLocal }!!.address)
-        )
-
-        // Register a service
-        val serviceInfo = ServiceInfo.create(
-            "_http._tcp.local.",
-            "pillcounter",
-            8080,
-            "path=index.html"
-        )
-
-        jmdns.registerService(serviceInfo)
-        jmdns
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-
-    val server = embeddedServer(CIO, port = 8080, host = "0.0.0.0", module = Application::module)
+    val server = embeddedServer(CIO, port = 8080, host = "0.0.0.0", module = { module(networkHandling) })
         .start(wait = true)
 
     Runtime.getRuntime()
         .addShutdownHook(
             Thread {
                 server.stop(1, 5, TimeUnit.SECONDS)
-                jmdns?.unregisterAllServices()
+                networkHandling.closeAll()
             }
         )
     Thread.currentThread().join()
 }
 
-fun Application.module() {
+fun Application.module(networkHandling: NetworkHandling) {
     val pillInfoFile = File("pillInfo.json")
     try {
         if (!pillInfoFile.exists()) {
@@ -88,7 +62,7 @@ fun Application.module() {
     configureSerialization()
     configureRouting(fullWeight, pillWeights, pillInfoFile)
     configurePiSetup(fullWeight)
-    configureWifi()
+    configureWifi(networkHandling)
 
     fullWeight
         .onEach { println("Full Weight: $it") }
