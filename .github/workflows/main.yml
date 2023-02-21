@@ -27,6 +27,13 @@ jobs:
         run: |
           sh gradlew buildFatJar
 
+      - name: Build Server artifacts
+        run: |
+          ls PillCounter/build/libs/
+      - name: Build Server artifacts
+        run: |
+          ls
+
       - uses: actions/upload-artifact@v3
         with:
           name: Server Jar
