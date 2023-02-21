@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -24,6 +23,10 @@ import javax.jmdns.JmDNS
 import javax.jmdns.ServiceInfo
 
 fun main() {
+    //TODO: This will ALWAYS be running! But when the pi regains wifi, restart this!
+
+    //TODO: This is the only thing that needs to be restarted on wifi changes
+    // if there is no wifi, run wifi-connect!
     val ipAddresses = getIpAddresses()
 
     // Create a JmDNS instance
@@ -78,7 +81,7 @@ fun Application.module() {
     configureSockets(pillCount)
     configureSerialization()
     configureRouting(fullWeight, pillWeights, pillInfoFile)
-    launch { piSetup(fullWeight) }
+    configurePiSetup(fullWeight)
 
     fullWeight
         .onEach { println("Full Weight: $it") }

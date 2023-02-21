@@ -1,43 +1,57 @@
 package com.example
 
-import com.pi4j.Pi4J
-import com.pi4j.ktx.console
-import com.pi4j.ktx.io.analog.analogInput
-import com.pi4j.ktx.io.analog.listen
-import com.pi4j.ktx.io.analog.piGpioProvider
-import com.pi4j.ktx.printRegistry
+import io.ktor.server.application.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.stream.Collectors
+import kotlin.math.roundToInt
 
-fun piSetup(
+fun Application.configurePiSetup(
     valueUpdate: MutableStateFlow<Int> = MutableStateFlow(0)
-) = console {
-    title("Hello World")
-    Pi4J.newAutoContext().run PI4J@{
-        describe()
-        analogInput(24) {
-            id("weight")
-            name("Weight Sensor")
-            //mockProvider()
-            piGpioProvider()
-        }.run {
-            printRegistry(this@PI4J)
-            listen {
-                valueUpdate.tryEmit(it.value())
+) {
+    /*console {
+        title("Hello World")
+        Pi4J.newAutoContext().run PI4J@{
+            describe()
+            analogInput(24) {
+                id("weight")
+                name("Weight Sensor")
+                mockProvider()
+                //piGpioProvider()
+            }.run {
+                printRegistry(this@PI4J)
+                listen {
+                    valueUpdate.tryEmit(it.value())
+                }
             }
         }
+    }*/
+
+    flow {
+        while (true) {
+            delay(1000)
+            val response = RunPython.runPythonCodeAsync("hx711_example.py").await()
+                .toFloatOrNull()
+            emit(response)
+        }
     }
+        .filterNotNull()
+        .map { it.roundToInt() }
+        .onEach { valueUpdate.emit(it) }
+        .launchIn(this)
+
 }
 
 object RunPython {
     @Suppress("BlockingMethodInNonBlockingContext")
     fun runPythonCodeAsync(fileName: String, vararg args: String) = GlobalScope.async {
-        val command = "python3 src/main/python/$fileName ${args.joinToString(" ")}"
+        val command = "python3 utilities/$fileName ${args.joinToString(" ")}"
         val process = Runtime.getRuntime().exec(command)
+        //TODO: Can this be last?
         process.waitFor()
         val reader = BufferedReader(InputStreamReader(process.inputStream))
         reader.lines().collect(Collectors.joining("\n"))
