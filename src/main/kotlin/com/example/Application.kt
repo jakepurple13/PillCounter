@@ -30,19 +30,25 @@ fun main() {
     val ipAddresses = getIpAddresses()
 
     // Create a JmDNS instance
-    val jmdns = JmDNS.create(
-        InetAddress.getByName(ipAddresses.find { it.addressType == AddressType.SiteLocal }!!.address)
-    )
+    val jmdns = try {
+        val jmdns = JmDNS.create(
+            InetAddress.getByName(ipAddresses.find { it.addressType == AddressType.SiteLocal }!!.address)
+        )
 
-    // Register a service
-    val serviceInfo = ServiceInfo.create(
-        "_http._tcp.local.",
-        "pillcounter",
-        8080,
-        "path=index.html"
-    )
+        // Register a service
+        val serviceInfo = ServiceInfo.create(
+            "_http._tcp.local.",
+            "pillcounter",
+            8080,
+            "path=index.html"
+        )
 
-    jmdns.registerService(serviceInfo)
+        jmdns.registerService(serviceInfo)
+        jmdns
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 
     val server = embeddedServer(CIO, port = 8080, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
@@ -51,7 +57,7 @@ fun main() {
         .addShutdownHook(
             Thread {
                 server.stop(1, 5, TimeUnit.SECONDS)
-                jmdns.unregisterAllServices()
+                jmdns?.unregisterAllServices()
             }
         )
     Thread.currentThread().join()
@@ -82,6 +88,7 @@ fun Application.module() {
     configureSerialization()
     configureRouting(fullWeight, pillWeights, pillInfoFile)
     configurePiSetup(fullWeight)
+    configureWifi()
 
     fullWeight
         .onEach { println("Full Weight: $it") }
@@ -107,7 +114,7 @@ data class PillWeights(
 fun calculatePillCount(weight: Int, pillWeight: PillWeights) =
     (weight - pillWeight.bottleWeight) / pillWeight.pillWeight
 
-private fun getIpAddresses(): List<IpAddressInfo> {
+fun getIpAddresses(): List<IpAddressInfo> {
     val ip = mutableListOf<IpAddressInfo>()
     try {
         val enumNetworkInterfaces = NetworkInterface.getNetworkInterfaces()
