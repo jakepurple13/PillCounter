@@ -81,11 +81,12 @@ class NetworkHandling {
     }
 
     suspend fun internetListener() {
+        delay(10000)
         while (true) {
             try {
                 val ipAddresses = getIpAddresses()
                 if (
-                    !InetAddress.getByName(ipAddresses.find { it.addressType == AddressType.SiteLocal }!!.address)
+                    !InetAddress.getByName(ipAddresses.find { it.addressType == AddressType.SiteLocal }?.address)
                         .isReachable(10000)
                 ) {
                     throw Exception("Can't reach network!")
