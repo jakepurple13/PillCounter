@@ -1,3 +1,3 @@
 [Desktop Entry]
 Name=PillCounter
-Exec=lxterminal --command="java -jar /home/pi/Desktop/pillcounter.jar > /home/pi/Desktop/rebootLogs.txt"
+Exec=lxterminal --command="java -jar /home/pi/Desktop/pillcounter.jar >> /home/pi/Desktop/rebootLogs.txt"
