@@ -30,4 +30,4 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: Server Jar
-          path: /PillCounter/build/libs/pillcounter.jar
+          path: PillCounter/build/libs/pillcounter.jar
