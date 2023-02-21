@@ -19,6 +19,9 @@ Software instructions to get server working!
 
 4. Move `PillCounter/build/libs/pillcounter.jar` to the desktop
 
+5. Run
+   1. `bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/raspbian-install.sh)`
+
 # Making use of
 
 1. https://github.com/tatobari/hx711py
@@ -26,4 +29,6 @@ Software instructions to get server working!
 2. https://github.com/JetBrains/compose-jb
     1. For UI https://github.com/jakepurple13/PillCounterApplication
 3. https://www.raspberrypi.com/software/
-    1. Raspberry Pi OS
+   1. Raspberry Pi OS
+4. https://github.com/balena-os/wifi-connect
+   1. This is the auto wi-fi connect setup to allow hooking the device up to a wi-fi connection

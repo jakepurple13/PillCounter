@@ -96,7 +96,7 @@ class NetworkHandling {
             } catch (e: Exception) {
                 e.printStackTrace()
                 closeAll()
-                //RunCommand.runAsync("sudo wifi-connect").await()
+                RunCommand.runAsync("sudo wifi-connect").await()
             }
         }
     }
