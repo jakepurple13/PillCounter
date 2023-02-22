@@ -16,7 +16,14 @@ curl https://github.com/jakepurple13/PillCounter/releases/download/v0.0.1/pillco
 yes | sudo apt update
 yes | sudo apt install default-jdk
 
-#Step 5 - Setup Balena Wifi-Connect?
+#Step 5 - Setup Wifi-Connect
+echo "deb http://repository.nymea.io bullseye rpi" | sudo tee /etc/apt/sources.list.d/nymea.list
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key A1A19ED6
+
+yes | sudo apt-get update
+yes | sudo apt-get install nymea-networkmanager dirmngr
+
+sudo systemctl disable dhcpcd
 
 #Final Step
-rm -f ~/Desktop/full_setup.sh
+sudo reboot
