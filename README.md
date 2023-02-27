@@ -34,3 +34,5 @@ Software instructions to get server working!
    1. This is the auto wi-fi connect setup to allow hooking the device up to a wi-fi connection
    2. iOS app - https://itunes.apple.com/us/app/berrylan/id1436156018
    3. Android app - https://play.google.com/store/apps/details?id=io.guh.berrylan
+5. https://github.com/bogde/HX711
+   1. For loadcell calibration with Arduino and hx711
