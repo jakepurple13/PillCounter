@@ -10,7 +10,8 @@ curl https://raw.githubusercontent.com/jakepurple13/PillCounter/main/utilities/p
 sudo mv ~/Desktop/pillcounter.desktop /etc/xdg/autostart/pillcounter.desktop
 
 #Step 3 - Download server
-curl https://github.com/jakepurple13/PillCounter/releases/download/v0.0.1/pillcounter.jar -o ~/Desktop/pillcounter.jar
+# Work on this!
+#curl https://github.com/jakepurple13/PillCounter/releases/download/v0.0.1/pillcounter.jar -o ~/Desktop/pillcounter.jar
 
 #Step 4 - Java installing
 yes | sudo apt update
@@ -24,6 +25,11 @@ yes | sudo apt-get update
 yes | sudo apt-get install nymea-networkmanager dirmngr
 
 sudo systemctl disable dhcpcd
+
+#yes | bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/raspbian-install.sh)
+
+# Step 5.1 - Set the Discoverable Timeout to 0 so it can always be discoverable
+sed -i 's/^#DiscoverableTimeout = 0/DiscoverableTimeout = 0/g' /etc/bluetooth/main.conf
 
 #Final Step
 sudo reboot
