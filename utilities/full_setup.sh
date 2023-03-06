@@ -32,4 +32,4 @@ sudo systemctl disable dhcpcd
 sed -i 's/^#DiscoverableTimeout = 0/DiscoverableTimeout = 0/g' /etc/bluetooth/main.conf
 
 #Final Step
-sudo reboot
+#sudo reboot
