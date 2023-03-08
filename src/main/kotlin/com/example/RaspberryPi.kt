@@ -113,11 +113,24 @@ fun Application.configureWifi(networkHandling: NetworkHandling) {
 }
 
 object RunCommand {
-    //TODO: Make a utilities folder on the pi where python scripts will go to
     //val command = "python3 utilities/$fileName ${args.joinToString(" ")}"
     @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun runPythonCodeAsync(fileName: String, vararg args: String) =
         runAsync("python3 $fileName ${args.joinToString(" ")}")
+
+    @Suppress("BlockingMethodInNonBlockingContext")
+    fun runPythonCodeAsyncFlow(fileName: String, vararg args: String): Flow<String> {
+        var process: Process? = null
+        return flow {
+            process = Runtime.getRuntime().exec("python3 $fileName ${args.joinToString(" ")}")
+            process!!.inputStream.bufferedReader().use { r ->
+                var line: String?
+                while (r.readLine().also { l -> line = l } != null) {
+                    line?.let { emit(it) }
+                }
+            }
+        }.onCompletion { process?.destroy() }
+    }
 
     @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun runAsync(command: String) = coroutineScope {
