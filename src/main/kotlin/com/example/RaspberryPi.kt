@@ -36,15 +36,17 @@ fun Application.configurePiSetup(
     pillCount
         .onEach {
             println("Updating screen")
-            val ipAddresses = getIpAddresses()
-
-            val ipAddress = InetAddress.getByName(ipAddresses.find { it.addressType == AddressType.SiteLocal }?.address)
-
+            val ip = try {
+                InetAddress.getByName(getIpAddresses().find { it.addressType == AddressType.SiteLocal }?.address)
+            } catch (e: Exception) {
+                null
+            }?.hostAddress?.let { if (it == "127.0.0.1") null else it }
             RunCommand.runPythonCodeAsync(
                 "/home/pi/Desktop/einkscreendisplay.py",
-                ipAddress?.hostAddress ?: "No Internet",
+                "IP: ${ip ?: "No Internet"}",
                 it.pillWeights.name,
                 "~${it.count} pills",
+                "${it.pillWeights.pillWeight}(g) - ${it.pillWeights.bottleWeight}(g)",
                 "PillCounter v$version"
             ).await()
         }

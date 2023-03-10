@@ -33,9 +33,9 @@ display.text(sys.argv[2], 10, 34, Adafruit_EPD.BLACK, size=displaySize)
 display.text(sys.argv[3], 10, 58, Adafruit_EPD.BLACK, size=displaySize)
 
 # extra
-# display.text(sys.argv[4], 10, 82, Adafruit_EPD.BLACK, size=displaySize)
+display.text(sys.argv[4], 10, 82, Adafruit_EPD.BLACK, size=displaySize)
 
 # version
-display.text(sys.argv[4], 10, 106, Adafruit_EPD.BLACK, size=displaySize)
+display.text(sys.argv[5], 10, 106, Adafruit_EPD.BLACK, size=displaySize)
 
 display.display()
