@@ -30,6 +30,10 @@ ktor {
     }
 }
 
+tasks {
+    getByName<Zip>("distZip").archiveFileName.set("${project.name}.zip")
+}
+
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
 }

@@ -1,6 +1,11 @@
 package com.example
 
 import com.example.plugins.PillCount
+import com.pi4j.ktx.io.digital.digitalInput
+import com.pi4j.ktx.io.digital.listen
+import com.pi4j.ktx.io.digital.onHigh
+import com.pi4j.ktx.io.digital.piGpioProvider
+import com.pi4j.ktx.pi4jAsync
 import io.ktor.server.application.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -18,33 +23,46 @@ fun Application.configurePiSetup(
     pillCount: Flow<PillCount>,
     version: String
 ) {
-    /*pi4jAsync {
-        digitalInput(12) {
-            id("Top Button")
-            piGpioProvider()
-        }.onLow {
-            println("Top Pressed!")
-        }
-
-        digitalInput(15) {
-            id("Bottom Button")
-            piGpioProvider()
-        }.onLow {
-            println("Bottom Pressed!")
-        }
-    }*/
-
     //TODO: On top button press, this will change to true for 10 minutes, then it will go back to false
     // OR on bottom button press, it will change to false
+    // Button press OR! post request from client will change this to true
     val updateQuickly = MutableStateFlow(true)
+
+    launch {
+        pi4jAsync {
+            digitalInput(6) {
+                id("Top Button")
+                piGpioProvider()
+            }
+                .listen { println("Top ${it.state()}!") }
+                .onHigh { updateQuickly.tryEmit(true) }
+
+            digitalInput(5) {
+                id("Bottom Button")
+                piGpioProvider()
+            }
+                .listen { println("Bottom ${it.state()}!") }
+                .onHigh { updateQuickly.tryEmit(false) }
+
+            while (true) {
+                delay(10000)
+            }
+        }
+    }
+
+    updateQuickly
+        .onEach { println("Update quickly? $it") }
+        .filter { it }
+        .debounce(10.minutes.inWholeMilliseconds)
+        .onEach { updateQuickly.emit(false) }
+        .launchIn(this)
 
     launch {
         delay(10000)
         updateQuickly.emit(false)
     }
 
-    pillCount
-        .combine(updateQuickly) { p, u -> p to u }
+    combine(pillCount, updateQuickly) { p, u -> p to u }
         .debounce { if (it.second) 1000 else 3.minutes.inWholeMilliseconds }
         .map { it.first }
         .onEach {
@@ -66,18 +84,9 @@ fun Application.configurePiSetup(
         .flowOn(Dispatchers.IO)
         .launchIn(this)
 
-    /*RunCommand.runPythonCodeAsyncFlow("/home/pi/Desktop/button_input.py")
-        .onEach {
-            when (it) {
-                "Switch 1" -> println("Do Switch 1 Action")
-                "Switch 2" -> println("Do Switch 2 Action")
-            }
-        }
-        .launchIn(this)*/
-
     flow {
         while (true) {
-            delay(10000)
+            delay(1000)
             val response = RunCommand.runPythonCodeAsync("/home/pi/Desktop/hx711_example.py")
                 .await()
                 .toFloatOrNull()
