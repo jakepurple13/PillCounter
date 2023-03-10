@@ -11,13 +11,14 @@ import java.util.stream.Collectors
 import javax.jmdns.JmDNS
 import javax.jmdns.ServiceInfo
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.minutes
 
 fun Application.configurePiSetup(
     valueUpdate: MutableStateFlow<Int>,
     pillCount: Flow<PillCount>,
     version: String
 ) {
-    /*pi4j {
+    /*pi4jAsync {
         digitalInput(12) {
             id("Top Button")
             piGpioProvider()
@@ -33,7 +34,19 @@ fun Application.configurePiSetup(
         }
     }*/
 
+    //TODO: On top button press, this will change to true for 10 minutes, then it will go back to false
+    // OR on bottom button press, it will change to false
+    val updateQuickly = MutableStateFlow(true)
+
+    launch {
+        delay(10000)
+        updateQuickly.emit(false)
+    }
+
     pillCount
+        .combine(updateQuickly) { p, u -> p to u }
+        .debounce { if (it.second) 1000 else 3.minutes.inWholeMilliseconds }
+        .map { it.first }
         .onEach {
             println("Updating screen")
             val ip = try {
