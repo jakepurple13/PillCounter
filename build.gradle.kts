@@ -49,12 +49,11 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     val pi4jVersion = "2.3.0"
-    implementation("com.pi4j:pi4j-ktx:$pi4jVersion")
+    implementation("com.pi4j:pi4j-ktx:2.4.0")
     implementation("com.pi4j:pi4j-core:$pi4jVersion")
     implementation("com.pi4j:pi4j-plugin-raspberrypi:$pi4jVersion")
     implementation("com.pi4j:pi4j-plugin-pigpio:$pi4jVersion")
     implementation("com.pi4j:pi4j-plugin-linuxfs:$pi4jVersion")
-    implementation("com.pi4j:pi4j-plugin-mock:$pi4jVersion")
     implementation("org.jmdns:jmdns:3.5.8")
     implementation("org.slf4j:slf4j-nop:2.0.6")
 }

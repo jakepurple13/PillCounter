@@ -38,6 +38,12 @@ fun main() {
 }
 
 fun Application.module(networkHandling: NetworkHandling) {
+    val version = try {
+        File("version.txt").readText()
+    } catch (e: Exception) {
+        ""
+    }.ifEmpty { "1.0.0" }
+    println("PillCounter Version $version")
     val pillInfoFile = File("pillInfo.json")
     try {
         if (!pillInfoFile.exists()) {
@@ -61,7 +67,7 @@ fun Application.module(networkHandling: NetworkHandling) {
     configureSockets(pillCount)
     configureSerialization()
     configureRouting(fullWeight, pillWeights, pillInfoFile)
-    configurePiSetup(fullWeight)
+    configurePiSetup(fullWeight, pillCount, version)
     configureWifi(networkHandling)
 
     fullWeight

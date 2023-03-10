@@ -1,11 +1,9 @@
 package com.example
 
+import com.example.plugins.PillCount
 import io.ktor.server.application.*
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.InetAddress
@@ -15,29 +13,56 @@ import javax.jmdns.ServiceInfo
 import kotlin.math.roundToInt
 
 fun Application.configurePiSetup(
-    valueUpdate: MutableStateFlow<Int> = MutableStateFlow(0)
+    valueUpdate: MutableStateFlow<Int>,
+    pillCount: Flow<PillCount>,
+    version: String
 ) {
-    /*console {
-        title("Hello World")
-        Pi4J.newAutoContext().run PI4J@{
-            describe()
-            analogInput(24) {
-                id("weight")
-                name("Weight Sensor")
-                mockProvider()
-                //piGpioProvider()
-            }.run {
-                printRegistry(this@PI4J)
-                listen {
-                    valueUpdate.tryEmit(it.value())
-                }
-            }
+    /*pi4j {
+        digitalInput(12) {
+            id("Top Button")
+            piGpioProvider()
+        }.onLow {
+            println("Top Pressed!")
+        }
+
+        digitalInput(15) {
+            id("Bottom Button")
+            piGpioProvider()
+        }.onLow {
+            println("Bottom Pressed!")
         }
     }*/
 
+    pillCount
+        .onEach {
+            println("Updating screen")
+            val ipAddresses = getIpAddresses()
+
+            val ipAddress = InetAddress.getByName(ipAddresses.find { it.addressType == AddressType.SiteLocal }?.address)
+
+            RunCommand.runPythonCodeAsync(
+                "/home/pi/Desktop/einkscreendisplay.py",
+                ipAddress?.hostAddress ?: "No Internet",
+                it.pillWeights.name,
+                "~${it.count} pills",
+                "PillCounter v$version"
+            ).await()
+        }
+        .flowOn(Dispatchers.IO)
+        .launchIn(this)
+
+    /*RunCommand.runPythonCodeAsyncFlow("/home/pi/Desktop/button_input.py")
+        .onEach {
+            when (it) {
+                "Switch 1" -> println("Do Switch 1 Action")
+                "Switch 2" -> println("Do Switch 2 Action")
+            }
+        }
+        .launchIn(this)*/
+
     flow {
         while (true) {
-            delay(1000)
+            delay(10000)
             val response = RunCommand.runPythonCodeAsync("/home/pi/Desktop/hx711_example.py")
                 .await()
                 .toFloatOrNull()
@@ -114,26 +139,34 @@ fun Application.configureWifi(networkHandling: NetworkHandling) {
 
 object RunCommand {
     //val command = "python3 utilities/$fileName ${args.joinToString(" ")}"
-    @Suppress("BlockingMethodInNonBlockingContext")
-    suspend fun runPythonCodeAsync(fileName: String, vararg args: String) =
-        runAsync("python3 $fileName ${args.joinToString(" ")}")
 
     @Suppress("BlockingMethodInNonBlockingContext")
-    fun runPythonCodeAsyncFlow(fileName: String, vararg args: String): Flow<String> {
-        var process: Process? = null
-        return flow {
-            process = Runtime.getRuntime().exec("python3 $fileName ${args.joinToString(" ")}")
-            process!!.inputStream.bufferedReader().use { r ->
+    suspend fun runPythonCodeAsync(fileName: String, vararg args: String) =
+        runAsync("python3", fileName, *args)
+
+    fun runPythonCodeAsyncFlow(fileName: String, vararg args: String): Flow<String?> = flow {
+        Runtime.getRuntime().exec(arrayOf("python3", fileName, *args))
+            .inputStream.bufferedReader().use { r ->
                 var line: String?
                 while (r.readLine().also { l -> line = l } != null) {
-                    line?.let { emit(it) }
+                    emit(line)
                 }
             }
-        }.onCompletion { process?.destroy() }
     }
+        .flowOn(Dispatchers.IO)
 
     @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun runAsync(command: String) = coroutineScope {
+        async {
+            val process = Runtime.getRuntime().exec(command)
+            process.waitFor()
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
+            reader.lines().collect(Collectors.joining("\n"))
+        }
+    }
+
+    @Suppress("BlockingMethodInNonBlockingContext")
+    suspend fun runAsync(vararg command: String) = coroutineScope {
         async {
             val process = Runtime.getRuntime().exec(command)
             process.waitFor()

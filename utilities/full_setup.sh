@@ -4,6 +4,7 @@
 curl https://raw.githubusercontent.com/jakepurple13/PillCounter/main/utilities/hx711_example.py >> ~/Desktop/hx711_example.py
 curl https://raw.githubusercontent.com/jakepurple13/PillCounter/main/utilities/emulated_hx711.py >> ~/Desktop/emulated_hx711.py
 curl https://raw.githubusercontent.com/jakepurple13/PillCounter/main/utilities/hx711.py >> ~/Desktop/hx711.py
+curl https://raw.githubusercontent.com/jakepurple13/PillCounter/main/utilities/einkscreendisplay.py >> ~/Desktop/hx711.py
 
 #Step 2 - Download and set autostart server
 curl https://raw.githubusercontent.com/jakepurple13/PillCounter/main/utilities/pillcounter.desktop >> ~/Desktop/pillcounter.desktop
@@ -30,6 +31,18 @@ sudo systemctl disable dhcpcd
 
 # Step 5.1 - Set the Discoverable Timeout to 0 so it can always be discoverable
 sed -i 's/^#DiscoverableTimeout = 0/DiscoverableTimeout = 0/g' /etc/bluetooth/main.conf
+
+# Step 6 - Install support for screen
+sudo pip3 install adafruit-circuitpython-bitmap_font
+sudo pip3 install adafruit-circuitpython-framebuf
+sudo pip3 install adafruit-circuitpython-lis3dh
+sudo pip3 install adafruit-circuitpython-busdevice
+sudo pip3 install adafruit-circuitpython-epd
+
+cd ~
+sudo pip3 install --upgrade adafruit-python-shell
+wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
+yes | sudo python3 raspi-blinka.py
 
 #Final Step
 #sudo reboot
