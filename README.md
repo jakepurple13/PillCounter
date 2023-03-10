@@ -32,5 +32,7 @@ Software instructions to get server working!
    1. Raspberry Pi OS
 4. https://github.com/nymea/berrylan#installation-on-a-plain-raspbian
    1. This is the auto wi-fi connect setup to allow hooking the device up to a wi-fi connection
-   2. iOS app - https://itunes.apple.com/us/app/berrylan/id1436156018
-   3. Android app - https://play.google.com/store/apps/details?id=io.guh.berrylan
+5. https://www.adafruit.com/product/4687
+   1. The screen being used
+      1. This is an eink display, so the device can be turned off and we can still see information
+   2. https://learn.adafruit.com/2-13-in-e-ink-bonnet/usage

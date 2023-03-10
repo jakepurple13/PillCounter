@@ -1,8 +1,8 @@
-import digitalio
-import busio
 import board
-from adafruit_epd.epd import Adafruit_EPD
+import busio
+import digitalio
 import sys
+from adafruit_epd.epd import Adafruit_EPD
 
 spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
 ecs = digitalio.DigitalInOut(board.CE0)
@@ -31,6 +31,9 @@ display.text(sys.argv[2], 10, 34, Adafruit_EPD.BLACK, size=displaySize)
 
 # pill count
 display.text(sys.argv[3], 10, 58, Adafruit_EPD.BLACK, size=displaySize)
+
+# extra
+# display.text(sys.argv[4], 10, 82, Adafruit_EPD.BLACK, size=displaySize)
 
 # version
 display.text(sys.argv[4], 10, 200, Adafruit_EPD.BLACK, size=displaySize)

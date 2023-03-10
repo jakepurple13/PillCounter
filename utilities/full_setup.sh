@@ -39,6 +39,8 @@ sudo pip3 install adafruit-circuitpython-lis3dh
 sudo pip3 install adafruit-circuitpython-busdevice
 sudo pip3 install adafruit-circuitpython-epd
 
+curl https://github.com/adafruit/Adafruit_CircuitPython_framebuf/raw/main/examples/font5x8.bin >> font5x8.bin
+
 cd ~
 sudo pip3 install --upgrade adafruit-python-shell
 wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
