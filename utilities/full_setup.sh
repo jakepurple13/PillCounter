@@ -18,21 +18,7 @@ sudo mv ~/Desktop/pillcounter.desktop /etc/xdg/autostart/pillcounter.desktop
 yes | sudo apt update
 yes | sudo apt install default-jdk
 
-#Step 5 - Setup Wifi-Connect
-echo "deb http://repository.nymea.io bullseye rpi" | sudo tee /etc/apt/sources.list.d/nymea.list
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key A1A19ED6
-
-yes | sudo apt-get update
-yes | sudo apt-get install nymea-networkmanager dirmngr
-
-sudo systemctl disable dhcpcd
-
-#yes | bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/raspbian-install.sh)
-
-# Step 5.1 - Set the Discoverable Timeout to 0 so it can always be discoverable
-sed -i 's/^#DiscoverableTimeout = 0/DiscoverableTimeout = 0/g' /etc/bluetooth/main.conf
-
-# Step 6 - Install support for screen
+# Step 5 - Install support for screen
 sudo pip3 install adafruit-circuitpython-bitmap_font
 sudo pip3 install adafruit-circuitpython-framebuf
 sudo pip3 install adafruit-circuitpython-lis3dh
@@ -45,7 +31,20 @@ wget https://github.com/adafruit/Adafruit_CircuitPython_framebuf/raw/main/exampl
 cd ~
 sudo pip3 install --upgrade adafruit-python-shell
 wget https://raw.githubusercontent.com/adafruit/Raspberry-Pi-Installer-Scripts/master/raspi-blinka.py
-yes | sudo python3 raspi-blinka.py
+yes n | sudo python3 raspi-blinka.py
+#
+
+#Step 6 - Setup Wifi-Connect
+echo "deb http://repository.nymea.io bullseye rpi" | sudo tee /etc/apt/sources.list.d/nymea.list
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key A1A19ED6
+
+yes | sudo apt-get update
+yes | sudo apt-get install nymea-networkmanager dirmngr
+
+sudo systemctl disable dhcpcd
+
+# Step 6.1 - Set the Discoverable Timeout to 0 so it can always be discoverable
+sed -i 's/^#DiscoverableTimeout = 0/DiscoverableTimeout = 0/g' /etc/bluetooth/main.conf
 
 #Final Step
-#sudo reboot
+sudo reboot
