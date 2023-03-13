@@ -4,7 +4,7 @@
 curl https://raw.githubusercontent.com/jakepurple13/PillCounter/main/utilities/hx711_example.py >> ~/Desktop/hx711_example.py
 curl https://raw.githubusercontent.com/jakepurple13/PillCounter/main/utilities/emulated_hx711.py >> ~/Desktop/emulated_hx711.py
 curl https://raw.githubusercontent.com/jakepurple13/PillCounter/main/utilities/hx711.py >> ~/Desktop/hx711.py
-curl https://raw.githubusercontent.com/jakepurple13/PillCounter/main/utilities/einkscreendisplay.py >> ~/Desktop/hx711.py
+curl https://raw.githubusercontent.com/jakepurple13/PillCounter/main/utilities/einkscreendisplay.py >> ~/Desktop/einkscreendisplay.py
 
 #Step 2 - Download and set autostart server
 curl https://raw.githubusercontent.com/jakepurple13/PillCounter/main/utilities/pillcounter.desktop >> ~/Desktop/pillcounter.desktop

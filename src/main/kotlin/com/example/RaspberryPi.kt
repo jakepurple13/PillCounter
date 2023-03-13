@@ -16,6 +16,7 @@ import java.util.stream.Collectors
 import javax.jmdns.JmDNS
 import javax.jmdns.ServiceInfo
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
 fun Application.configurePiSetup(
@@ -45,7 +46,7 @@ fun Application.configurePiSetup(
                 .onHigh { updateQuickly.tryEmit(false) }
 
             while (true) {
-                delay(10000)
+                delay(1.days.inWholeMilliseconds)
             }
         }
     }
@@ -53,7 +54,7 @@ fun Application.configurePiSetup(
     updateQuickly
         .onEach { println("Update quickly? $it") }
         .filter { it }
-        .debounce(10.minutes.inWholeMilliseconds)
+        .debounce(5.minutes.inWholeMilliseconds)
         .onEach { updateQuickly.emit(false) }
         .launchIn(this)
 
@@ -63,7 +64,7 @@ fun Application.configurePiSetup(
     }
 
     combine(pillCount, updateQuickly) { p, u -> p to u }
-        .debounce { if (it.second) 1000 else 3.minutes.inWholeMilliseconds }
+        .debounce { if (it.second) 10000 else 3.minutes.inWholeMilliseconds }
         .map { it.first }
         .onEach {
             println("Updating screen")

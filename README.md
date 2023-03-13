@@ -17,7 +17,8 @@ Software instructions to get server working!
 3. Move `utilties/emulated_hx711.py`, `utilties/hx711.py`, and `utilties/hx711_example.py`
    to the desktop
 
-4. Move `PillCounter/build/libs/pillcounter.jar` to the desktop
+4. ~~Move `PillCounter/build/libs/pillcounter.jar` to the desktop~~
+   1. Run gradle distZip and/or move PillCounter/build/distributions/PillCounter.zip to the desktop
 
 5. Run
    1. `bash <(curl -L https://github.com/balena-io/wifi-connect/raw/master/scripts/raspbian-install.sh)`
@@ -34,5 +35,5 @@ Software instructions to get server working!
    1. This is the auto wi-fi connect setup to allow hooking the device up to a wi-fi connection
 5. https://www.adafruit.com/product/4687
    1. The screen being used
-      1. This is an eink display, so the device can be turned off and we can still see information
+      1. This is an eink display, so the device can be turned off, and we can still see information
    2. https://learn.adafruit.com/2-13-in-e-ink-bonnet/usage
